@@ -1,0 +1,81 @@
+image: node:18
+
+stages:
+  - setup
+  - lint
+  - test
+  - visual-test
+  - report
+
+cache:
+  paths:
+    - node_modules/
+    - cypress/
+    - .npm/
+
+variables:
+  npm_config_cache: "$CI_PROJECT_DIR/.npm"
+
+install:
+  stage: setup
+  script:
+    - npm ci
+  artifacts:
+    paths:
+      - node_modules/
+
+lint:
+  stage: lint
+  script:
+    - npm run lint
+    - npm run lint:gherkin
+    - npm run compile
+
+e2e-test:
+  stage: test
+  script:
+    - npm run cypress:e2e
+  artifacts:
+    when: always
+    paths:
+      - cypress/videos/
+      - cypress/screenshots/
+      - cypress/reports/
+    expire_in: 1 week
+
+visual-test:
+  stage: visual-test
+  script:
+    - |
+      if [ "$CI_COMMIT_BRANCH" = "main" ]; then
+        echo "Creating baseline images on main branch"
+        npx cypress run --env tags=@e2e,updateSnapshots=true
+      else
+        echo "Running visual comparison tests"
+        npx cypress run --env tags=@e2e
+      fi
+  artifacts:
+    when: always
+    paths:
+      - cypress/snapshots/
+      - cypress/videos/
+    expire_in: 1 week
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH == "main"'
+
+generate-report:
+  stage: report
+  script:
+    - npm run report:merge
+    - npm run report:generate
+  artifacts:
+    when: always
+    paths:
+      - cypress/reports/
+    reports:
+      junit: cypress/reports/output.html
+    expire_in: 1 week
+  dependencies:
+    - e2e-test
+    - visual-test 

@@ -1,0 +1,40 @@
+{
+  "name": "cypress-visual-bdd",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run",
+    "cypress:e2e": "cypress run --env tags=@e2e",
+    "cypress:e2e:open": "cypress open --env tags=@e2e",
+    "cypress:report": "cypress run --env tags=@e2e",
+    "report:merge": "mochawesome-merge cypress/reports/.jsons/*.json > cypress/reports/output.json",
+    "report:generate": "marge cypress/reports/output.json --reportDir cypress/reports --inline",
+    "report:full": "npm run cypress:report && npm run report:merge && npm run report:generate",
+    "lint": "eslint cypress/**/*.ts",
+    "lint:gherkin": "gherkin-lint cypress/e2e/features/*.feature",
+    "compile": "tsc --noEmit"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "cypress-cucumber-preprocessor": {
+    "nonGlobalStepDefinitions": false,
+    "stepDefinitions": "cypress/e2e/step_definitions/**/*.{js,ts}",
+    "filterSpecs": true,
+    "omitFiltered": true
+  },
+  "devDependencies": {
+    "@badeball/cypress-cucumber-preprocessor": "^21.0.3",
+    "@bahmutov/cypress-esbuild-preprocessor": "^2.2.4",
+    "@types/cypress": "^1.1.6",
+    "@types/node": "^22.10.7",
+    "cypress": "^13.6.0",
+    "cypress-image-snapshot": "^4.0.1",
+    "cypress-mochawesome-reporter": "^3.7.0",
+    "dotenv": "^16.4.1",
+    "typescript": "^5.7.3"
+  }
+}
