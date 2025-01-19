@@ -18,7 +18,7 @@ variables:
 install:
   stage: setup
   script:
-    - npm ci
+    - npm ci --legacy-peer-deps
   artifacts:
     paths:
       - node_modules/
@@ -37,7 +37,7 @@ visual-test:
   stage: visual-test
   before_script:
     - apt-get update && apt-get install -y xvfb libnss3 libatk1.0-0 libgtk-3-0 libgbm-dev libx11-xcb1 libxcomposite1 libxcursor1 libxdamage1 libxi6 libxtst6 libnss3 libxrandr2 libasound2 libpangocairo-1.0-0 libpangoft2-1.0-0 libatk-bridge2.0-0 libcups2 libdrm2
-    - npm ci
+    - npm ci --legacy-peer-deps
     - npx cypress install
   script:
     - mkdir -p cypress/reports
@@ -54,7 +54,7 @@ visual-test:
 generate-report:
   stage: report
   script:
-    - npm ci
+    - npm ci --legacy-peer-deps
     - npm install -g mochawesome-merge mochawesome-report-generator
     - ls -la cypress/reports/
     - mochawesome-merge cypress/reports/cypress-*.json > cypress/reports/output.json
