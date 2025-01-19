@@ -1,185 +1,77 @@
-# Cypress Visual BDD Testing Framework
+# Cypress Visual Testing with BDD
 
-This project demonstrates an end-to-end testing framework using Cypress with BDD (Behavior Driven Development), Visual Testing, and comprehensive test reporting capabilities.
+This project demonstrates visual regression testing using Cypress with Behavior-Driven Development (BDD) approach. It combines Cucumber for BDD, Page Object Model for better test organization, and visual testing capabilities.
 
 ## Features
 
-- **BDD Testing** with Cucumber integration
-- **Visual Regression Testing** using cypress-image-snapshot
-- **Page Object Model** implementation
-- **Mochawesome Reporting** with detailed test execution reports
-- **TypeScript** support for better code maintainability
+- BDD implementation using Cucumber and Gherkin syntax
+- Page Object Model (POM) for maintainable test code
+- Visual regression testing with screenshot comparison
+- Automatic screenshot management for:
+  - Base images (expected UI state)
+  - Actual images (current UI state)
+  - Diff images (when differences are detected)
+  - Failed test screenshots (in separate directory)
 
-## Prerequisites
-
-- Node.js (v18 or higher)
-- npm (Node Package Manager)
-
-## Installation
-
-1. Clone the repository:
-```bash
-git clone <repository-url>
-cd cypress-visual-bdd
-```
-
-2. Install dependencies:
-```bash
-npm install
-```
-
-## Project Structure
+## Directory Structure
 
 ```
 cypress/
 ├── e2e/
-│   ├── features/          # Gherkin feature files
-│   └── step_definitions/  # Step definitions
-├── pages/                 # Page Object Model files
-├── reports/              # Test reports
-├── screenshots/          # Test failure screenshots
-├── snapshots/           # Visual testing snapshots
-└── videos/              # Test execution videos
+│   └── features/            # Feature files in Gherkin syntax
+│       └── successful_login.feature
+├── fixtures/               # Test data
+├── pages/                 # Page Object Model classes
+│   └── InventoryPage.ts
+├── screenshots/           # Visual testing screenshots
+│   ├── base/             # Baseline images
+│   ├── actual/           # Current test run images
+│   ├── diff/             # Difference images
+│   └── failures/         # Failed test screenshots
+└── support/              # Support files and commands
+    └── e2e.ts           # Custom commands and configurations
 ```
 
-## Running Tests
+## Getting Started
 
-### Opening Cypress Test Runner
-```bash
-npm run cypress:open
-```
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-### Running Tests Headlessly
-```bash
-npm run cypress:e2e
-```
+2. Run tests:
+   ```bash
+   # Run all tests
+   npx cypress run
 
-### Generating Test Reports
-```bash
-npm run report:full
-```
+   # Run specific feature
+   npx cypress run --spec "cypress/e2e/features/successful_login.feature"
+   ```
 
-## Visual Testing
+## Visual Testing Workflow
 
-This project uses `cypress-image-snapshot` for visual regression testing. The framework captures screenshots of the application and compares them with baseline images to detect visual changes.
+1. Create baseline images:
+   - Run tests normally
+   - If satisfied with the screenshots, copy them from `actual` to `base` folder
 
-### Managing Visual Tests
+2. Run visual comparison:
+   - Execute tests normally
+   - Screenshots will be taken and compared with baseline
+   - Differences will be highlighted in diff images
+   - Failed screenshots will be stored separately
 
-1. **Creating Baseline Images**
-```bash
-npx cypress run --env tags=@e2e,updateSnapshots=true
-```
+## Configuration
 
-2. **Running Visual Comparison Tests**
-```bash
-npm run cypress:e2e
-```
-
-3. **Handling Visual Changes**
-- Failed visual tests will generate diff images in `cypress/snapshots/__diff_output__/`
-- Review the differences and update baselines if changes are intended
-
-## BDD Implementation
-
-The project uses Cucumber for BDD implementation:
-
-1. **Feature Files** (`cypress/e2e/features/`)
-   - Written in Gherkin syntax
-   - Describe test scenarios in plain English
-
-2. **Step Definitions** (`cypress/e2e/step_definitions/`)
-   - Implement the steps defined in feature files
-   - Written in TypeScript
-
-Example Feature:
-```gherkin
-Feature: Login Functionality
-  Scenario: Successful login with valid credentials
-    Given I am on the login page
-    When I enter valid credentials
-    Then I should be logged in successfully
-```
-
-## Page Object Model
-
-The framework implements the Page Object Model pattern for better maintainability:
-
-- `LoginPage.ts`: Handles login page interactions
-- `InventoryPage.ts`: Manages inventory page elements and actions
-
-## Test Reporting
-
-The project uses Cypress Mochawesome Reporter for detailed test reporting.
-
-### Viewing Reports
-
-1. Run tests with reporting:
-```bash
-npm run report:full
-```
-
-2. Access the report:
-- Open `cypress/reports/output.html` in a web browser
-- Reports include:
-  - Test execution summary
-  - Test steps and status
-  - Screenshots and videos
-  - Execution time and statistics
-
-### Available Scripts
-
-- `cypress:open`: Open Cypress Test Runner
-- `cypress:e2e`: Run tests headlessly
-- `cypress:e2e:open`: Open Cypress Test Runner with E2E testing
-- `cypress:report`: Run tests with reporting
-- `report:merge`: Merge JSON reports
-- `report:generate`: Generate HTML report
-- `report:full`: Complete test execution and report generation
-
-## Configuration Files
+The project uses several key configurations:
 
 - `cypress.config.ts`: Main Cypress configuration
-- `package.json`: Project dependencies and scripts
-- `.gherkin-lintrc`: Gherkin linting rules
-- `tsconfig.json`: TypeScript configuration
+- `e2e.ts`: Custom commands and screenshot handling
+- `.gitignore`: Excludes unnecessary files from version control
 
 ## Best Practices
 
-1. **Visual Testing**
-   - Keep baseline images in version control
-   - Review visual differences carefully
-   - Update baselines when intended changes occur
-
-2. **BDD**
-   - Write clear, concise feature files
-   - Maintain step definitions organized
-   - Use descriptive step names
-
-3. **Page Objects**
-   - Keep selectors centralized
-   - Implement reusable methods
-   - Follow single responsibility principle
-
-## Troubleshooting
-
-1. **Visual Test Failures**
-   - Check `cypress/snapshots/__diff_output__/` for visual differences
-   - Update baselines if changes are intended
-   - Verify test environment consistency
-
-2. **Report Generation Issues**
-   - Ensure proper directory structure
-   - Check for JSON report generation
-   - Verify merge and generate commands
-
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
-
-## License
-
-ISC 
+1. Keep baseline images in version control
+2. Review visual differences carefully
+3. Update baselines when intended UI changes occur
+4. Use meaningful names for screenshots
+5. Maintain separate directories for different types of screenshots
