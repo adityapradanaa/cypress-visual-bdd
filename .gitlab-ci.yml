@@ -1,47 +1,70 @@
-image: cypress/browsers:node18.12.0-chrome107
+image: node:18
 
 stages:
-  - test
+  - setup
+  - lint
+  - visual-test
   - report
-
-variables:
-  npm_config_cache: "$CI_PROJECT_DIR/.npm"
-  CYPRESS_CACHE_FOLDER: "$CI_PROJECT_DIR/cache/Cypress"
 
 cache:
   key: ${CI_COMMIT_REF_SLUG}
   paths:
-    - .npm
-    - cache/Cypress
-    - node_modules
+    - node_modules/
+    - .npm/
 
-test:
-  stage: test
+variables:
+  npm_config_cache: "$CI_PROJECT_DIR/.npm"
+
+install:
+  stage: setup
   script:
     - npm ci
-    - mkdir -p cypress/reports/.jsons
-    - mkdir -p cypress/reports/html
-    - npm run cypress:e2e
+  artifacts:
+    paths:
+      - node_modules/
+    expire_in: 1 day
+
+lint:
+  stage: lint
+  allow_failure: true
+  script:
+    - npm install -g eslint
+    - npm run lint
+    - npm run lint:gherkin
+    - npm run compile
+
+visual-test:
+  stage: visual-test
+  before_script:
+    - apt-get update && apt-get install -y xvfb libnss3 libatk1.0-0 libgtk-3-0 libgbm-dev libx11-xcb1 libxcomposite1 libxcursor1 libxdamage1 libxi6 libxtst6 libnss3 libxrandr2 libasound2 libpangocairo-1.0-0 libpangoft2-1.0-0 libatk-bridge2.0-0 libcups2 libdrm2
+    - npm ci
+    - npx cypress install
+  script:
+    - mkdir -p cypress/reports
+    - xvfb-run npx cypress run --env tags=@e2e --reporter mochawesome --reporter-options "reportDir=cypress/reports,overwrite=false,html=false,json=true,reportFilename=cypress-[hash]"
+  artifacts:
+    when: always
+    paths:
+      - cypress/videos/
+      - cypress/screenshots/
+      - cypress/snapshots/
+      - cypress/reports/
+    expire_in: 1 week
+
+generate-report:
+  stage: report
+  script:
+    - npm ci
+    - npm install -g mochawesome-merge mochawesome-report-generator
+    - ls -la cypress/reports/
+    - mochawesome-merge cypress/reports/cypress-*.json > cypress/reports/output.json
+    - marge cypress/reports/output.json --reportDir cypress/reports --inline
   artifacts:
     when: always
     paths:
       - cypress/reports/
-      - cypress/screenshots/
-      - cypress/videos/
-    expire_in: 1 day
-
-report:
-  stage: report
-  script:
-    - npm ci
-    - mkdir -p cypress/reports
-    - npm run report:merge
-    - npm run report:generate
-  artifacts:
-    when: always
-    paths:
-      - cypress/reports/output.json
-      - cypress/reports/output.html
-    expire_in: 1 day
+    reports:
+      junit: cypress/reports/output.html
+    expire_in: 1 week
   dependencies:
-    - test
+    - visual-test 
