@@ -2,42 +2,66 @@ import { Given, When, Then } from "@badeball/cypress-cucumber-preprocessor";
 import LoginPage from "../../pages/LoginPage";
 import InventoryPage from "../../pages/InventoryPage";
 
-Given("I visit the login page", () => {
-    LoginPage.visit();
+Given("I am on the login page", () => {
+  cy.visit("/");
 });
 
-When("I enter {string} as username", (username: string) => {
-    LoginPage.typeUsername(username);
+When("I login with valid credentials", () => {
+  LoginPage.login(Cypress.env('USERNAME'), Cypress.env('PASSWORD'));
 });
 
-When("I enter {string} as password", (password: string) => {
-    LoginPage.typePassword(password);
+When("I enter valid credentials", () => {
+  LoginPage.login(Cypress.env('USERNAME'), Cypress.env('PASSWORD'));
 });
 
 When("I click the login button", () => {
-    LoginPage.clickLogin();
+  cy.get('#login-button').click();
 });
 
-Then("I should be logged in successfully", () => {
-    InventoryPage.verifyPageLoaded();
+Then("I should see the inventory page", () => {
+  InventoryPage.verifyPageLoaded();
+});
+
+Then("I should be redirected to the inventory page", () => {
+  InventoryPage.verifyPageLoaded();
 });
 
 Then("I take a screenshot of the inventory page", () => {
-    InventoryPage.takeInventoryScreenshot();
+  InventoryPage.takeInventoryScreenshot();
+});
+
+Then("I compare the inventory page screenshot with threshold {float}", (threshold: number) => {
+  cy.compareScreenshots('inventory-page', threshold);
 });
 
 Then("I should see an error message", () => {
-    LoginPage.verifyErrorMessage('Username and password do not match');
+  LoginPage.verifyErrorMessage("Epic sadface: Username and password do not match any user in this service");
 });
 
 Then("I should see a locked out error message", () => {
-    LoginPage.verifyErrorMessage('Sorry, this user has been locked out');
+  LoginPage.verifyErrorMessage("Epic sadface: Sorry, this user has been locked out.");
 });
 
 Then("I take a screenshot of the error state", () => {
-    LoginPage.takeErrorScreenshot();
+  cy.wait(1000); // Wait for animations
+  cy.screenshot('login-error', {
+    capture: 'viewport',
+    overwrite: true
+  });
 });
 
 Then("I take a screenshot of the locked out error", () => {
-    LoginPage.takeErrorScreenshot();
+  cy.wait(1000); // Wait for animations
+  cy.screenshot('locked-out-error', {
+    capture: 'viewport',
+    overwrite: true
+  });
+});
+
+When("I enter invalid credentials", () => {
+  LoginPage.login('invalid_user', 'invalid_password');
+});
+
+When("I enter locked out user credentials", () => {
+  LoginPage.login('locked_out_user', 'secret_sauce');
 });

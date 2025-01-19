@@ -10,8 +10,7 @@ class InventoryPage {
 
     takeInventoryScreenshot() {
         cy.wait(1000); // delay for 1 second
-        // cy.get('.inventory_list').invoke('css', 'background-color', 'red');
-        cy.matchImageSnapshot('inventory-page');
+        cy.takeScreenshot('inventory-page');
     }
 }
 

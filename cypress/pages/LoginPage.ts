@@ -1,8 +1,8 @@
 class LoginPage {
     // Elements
-    private usernameInput = '[data-test="username"]';
-    private passwordInput = '[data-test="password"]';
-    private loginButton = '[data-test="login-button"]';
+    private usernameInput = '#user-name';
+    private passwordInput = '#password';
+    private loginButton = '#login-button';
     private errorMessage = '[data-test="error"]';
 
     // Actions
@@ -26,12 +26,19 @@ class LoginPage {
     verifyErrorMessage(message: string) {
         cy.get(this.errorMessage)
             .should('be.visible')
-            .and('contain', message);
+            .and('have.text', message);
+    }
+
+    verifyLoginButtonExists() {
+        cy.get(this.loginButton).should('exist');
     }
 
     takeErrorScreenshot() {
-        cy.wait(1000); // delay for 1 second
-        cy.matchImageSnapshot('login-error');
+        cy.wait(1000); // Wait for animations
+        cy.screenshot('login-error', {
+            capture: 'viewport',
+            overwrite: true
+        });
     }
 
     // Combined Actions
